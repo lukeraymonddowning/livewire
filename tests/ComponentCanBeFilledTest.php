@@ -59,6 +59,26 @@ class ComponentCanBeFilledTest extends TestCase
         $component->assertSee('protected');
         $component->assertSee('private');
     }
+
+    /** @test */
+    public function can_handle_the_id_on_an_eloquent_model()
+    {
+        $component = app(LivewireManager::class)->test(ComponentWithFillableProperties::class);
+
+        $component->call('callFill', new UserModel(['id' => 1]));
+
+        $this->assertEquals(1, $component->get('model_id'));
+    }
+
+    /** @test */
+    public function if_the_model_has_no_id_there_is_no_error()
+    {
+        $component = app(LivewireManager::class)->test(ComponentWithFillableProperties::class);
+
+        $component->call('callFill', new UserModel());
+
+        $this->assertNull($component->get('model_id'));
+    }
 }
 
 class User {
@@ -68,6 +88,8 @@ class User {
 }
 
 class UserModel extends Model {
+
+    protected $guarded = [];
     public $appends = [
         'publicProperty',
         'protectedProperty',
@@ -89,6 +111,7 @@ class UserModel extends Model {
 
 class ComponentWithFillableProperties extends Component
 {
+    public $model_id = null;
     public $publicProperty = 'public';
     protected $protectedProperty = 'protected';
     private $privateProperty = 'private';

@@ -141,6 +141,10 @@ trait InteractsWithProperties
 
         if ($values instanceof Model) {
             $values = $values->toArray();
+
+            if (isset($values['id'])) {
+                $values['model_id'] = $values['id'];
+            }
         }
 
         foreach ($values as $key => $value) {
